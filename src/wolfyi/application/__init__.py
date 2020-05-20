@@ -20,7 +20,7 @@ login = LoginManager()
 
 
 def create_app():
-    app = Flask(__name__)
+    app = Flask(__name__, template_folder='../templates')
     app.url_map.strict_slashes = False
     app.url_map.converters['regex'] = RegexConverter
 
