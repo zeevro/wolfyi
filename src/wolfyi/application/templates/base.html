@@ -1,0 +1,36 @@
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+        <script>
+            function copy(text) {
+                navigator.clipboard.writeText(text);
+                M.toast({ html: 'Copied' });
+            }
+        </script>
+        <title>URL Shortener</title>
+        {% block head_content %}{% endblock %}
+    </head>
+    <body>
+        <a href="/">Home</a>
+        |
+        {% if current_user.is_anonymous %}
+        <a href="{{ url_for('login') }}">Login</a>
+        |
+        <a href="{{ url_for('signup') }}">Sign up</a>
+        <hr />
+        {% else %}
+        User: {{ current_user.email }} | <a href="{{ url_for('logout') }}">Logout</a>
+        <hr />
+        <h3>Create new</h3>
+        <form action="/add" method="POST">
+            <label for="url">URL:</label>
+            <input id="url" name="url" />
+            <input type="submit" value="Create" class="btn" />
+        </form>
+        {% endif %}
+        {% block content %}{% endblock %}
+    </body>
+</html>

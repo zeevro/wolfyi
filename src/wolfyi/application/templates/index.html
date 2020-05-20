@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+        <h3>Existing:</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Short URL</th>
+                    <th>Target URL</th>
+                    <th>Created time</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in current_user.urls|sort(attribute='created')|reverse %}
+                <tr>
+                    <td>
+                        <a href="javascript:copy('{{ request.base_url }}{{ u.id }}')">
+                            <i class="fa fa-paste"></i>
+                            {{ request.base_url }}{{ u.id }}
+                        </a>
+                    </td>
+                    <td>
+                        <a href="{{ u.url|safe }}">{{ u.url|safe }}</a>
+                    </td>
+                    <td>
+                        {{ u.created }}
+                    </td>
+                    <td>
+                        <a href="/edit?id={{ u.id }}" title="Edit"><i class="fa fa-sliders"></i></a>
+                        <a href="/delete?id={{ u.id }}" title="Remove"><i class="fa fa-remove"></i></a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+{% endblock %}

@@ -1,0 +1,24 @@
+import argparse
+import getpass
+
+from application import create_app, db
+from application.models import User
+
+
+def main():
+    p = argparse.ArgumentParser()
+    p.add_argument('-e', '--email', required=True)
+    p.add_argument('-p', '--password')
+    args = p.parse_args()
+
+    app = create_app()
+
+    new_user = User(args.email, args.password or getpass.getpass())
+
+    with app.app_context():
+        db.session.add(new_user)
+        db.session.commit()
+
+
+if __name__ == "__main__":
+    main()
