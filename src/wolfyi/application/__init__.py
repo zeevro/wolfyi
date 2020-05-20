@@ -1,3 +1,6 @@
+import os
+
+import appdirs
 from flask import Flask, redirect, render_template
 # from flask_admin import Admin
 # from flask_admin.contrib.sqla import ModelView
@@ -23,7 +26,13 @@ def create_app():
 
     app.secret_key = b'\xa3\xb7i\x00\xab\x02\xa3n\n\xb8\x0fREi\xa6zyr\x0c\x91\xd62c\x0c\x8f`\x8c\\\xd5:C\\'
 
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db?check_same_thread=False'
+    db_dir_path = appdirs.user_data_dir('wolfyi')
+    os.makedirs(db_dir_path, exist_ok=True)
+    db_path = os.path.join(db_dir_path, 'test.db')
+
+    print(f'DB path: {db_path}')
+
+    app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}?check_same_thread=False'
     app.config['SQLALCHEMY_ECHO'] = True
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 

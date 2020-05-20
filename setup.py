@@ -28,6 +28,7 @@ setup(
     packages=find_packages('src'),
     include_package_data=True,
     install_requires=[
+        'appdirs',
         'flask',
         'sqlalchemy',
         'flask_login',
