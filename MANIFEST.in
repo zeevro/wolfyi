@@ -1,2 +1,2 @@
-recursive-include wolfyi/templates *
-recursive-include wolfyi/static *
+recursive-include src/wolfyi/templates *
+recursive-include src/wolfyi/static *
