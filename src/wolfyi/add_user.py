@@ -1,8 +1,8 @@
 import argparse
 import getpass
 
-from application import create_app, db
-from application.models import User
+from wolfyi.application import create_app, db
+from wolfyi.application.models import User
 
 
 def main():

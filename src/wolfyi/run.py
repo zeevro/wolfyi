@@ -1,4 +1,4 @@
-from application import create_app
+from wolfyi.application import create_app
 
 
 def main():

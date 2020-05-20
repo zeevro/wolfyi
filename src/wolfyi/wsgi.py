@@ -1,3 +1,3 @@
-from application import create_app
+from wolfyi.application import create_app
 
 application = create_app()
