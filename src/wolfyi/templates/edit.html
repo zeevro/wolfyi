@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h3>Edit URL</h3>
+{{ request.host_url }}{{ url.id }} &rarr; {{ url.url }}
+<form method="POST">
+    <input type="hidden" name="id" value="{{ url.id }}" />
+    <label for="url">New URL:</label>
+    <input id="url" name="url" />
+    <input type="submit" value="Save" class="btn" />
+</form>
+{% endblock %}

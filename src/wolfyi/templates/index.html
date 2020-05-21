@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
+        {% include 'create_form.html' %}
         <h3>Existing:</h3>
         <table>
             <thead>
@@ -27,8 +28,8 @@
                         {{ u.created }}
                     </td>
                     <td>
-                        <a href="/edit?id={{ u.id }}" title="Edit"><i class="fa fa-sliders"></i></a>
-                        <a href="/delete?id={{ u.id }}" title="Remove"><i class="fa fa-remove"></i></a>
+                        <a href="{{ url_for('edit_url', id=u.id) }}" title="Edit"><i class="fa fa-sliders"></i></a>
+                        <a href="{{ url_for('delete_url', id=u.id) }}" title="Remove"><i class="fa fa-remove"></i></a>
                     </td>
                 </tr>
                 {% endfor %}

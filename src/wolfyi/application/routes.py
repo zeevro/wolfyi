@@ -77,6 +77,37 @@ def add_url():
     return render_template('created.html', url=new_url)
 
 
+@app.route('/edit', methods=['GET', 'POST'])
+def edit_url():
+    url = URL.query.filter(URL.id == request.values['id'], URL.user_id == current_user.id).first_or_404()
+    if request.method == 'GET':
+        return render_template('edit.html', url=url)
+    url.url = request.form['url']
+    if '://' not in url.url:
+        url.url = 'http://' + url.url
+    taken = URL.query.filter(URL.user_id == current_user.id and URL.url == url.url).first()
+    if taken:
+        db.session.rollback()
+        return render_template('message.html', message=f'URL already taken by { request.host_url }{ taken.id }')
+    db.session.commit()
+    return redirect(url_for('index'))
+
+
+@app.route('/delete')
+def delete_url():
+    url = URL.query.filter(URL.id == request.args['id'], URL.user_id == current_user.id).first_or_404()
+    if not request.args.get('sure', None):
+        return render_template('delete.html', url=url)
+    db.session.delete(url)
+    db.session.commit()
+    return redirect(url_for('index'))
+
+
+@app.route('/account', methods=['GET', 'POST'])
+def account():
+    return 'Not yet implemented.<br /><a href="/">Go home</a>'
+
+
 @app.route('/<regex("[A-Za-z0-9_-]{6,8}"):slug>')
 def redirect_to_url(slug):
     url = URL.query.filter(URL.id == slug).first()

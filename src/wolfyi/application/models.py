@@ -39,3 +39,5 @@ class URL(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     url = db.Column(db.Text, index=False, unique=False, nullable=False)
     created = db.Column(db.DateTime, index=False, unique=False, nullable=False)
+
+    db.UniqueConstraint('user_id', 'url')
