@@ -75,7 +75,6 @@ def add_url():
         break
 
     return render_template('created.html', url=new_url)
-    return f'{new_url.id} &rarr; {new_url.url}'
 
 
 @app.route('/<regex("[A-Za-z0-9_-]{6,8}"):slug>')
