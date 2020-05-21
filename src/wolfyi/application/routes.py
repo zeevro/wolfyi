@@ -46,10 +46,10 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/add', methods=['POST'])
+@app.route('/add', methods=['GET', 'POST'])
 @login_required
 def add_url():
-    url = request.form['url']
+    url = request.values['url']
     if '://' not in url:
         url = 'http://' + url
 
