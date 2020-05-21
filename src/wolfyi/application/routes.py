@@ -78,6 +78,7 @@ def add_url():
 
 
 @app.route('/edit', methods=['GET', 'POST'])
+@login_required
 def edit_url():
     url = URL.query.filter(URL.id == request.values['id'], URL.user_id == current_user.id).first_or_404()
     if request.method == 'GET':
@@ -94,6 +95,7 @@ def edit_url():
 
 
 @app.route('/delete')
+@login_required
 def delete_url():
     url = URL.query.filter(URL.id == request.args['id'], URL.user_id == current_user.id).first_or_404()
     if not request.args.get('sure', None):
@@ -104,8 +106,9 @@ def delete_url():
 
 
 @app.route('/account', methods=['GET', 'POST'])
+@login_required
 def account():
-    return 'Not yet implemented.<br /><a href="/">Go home</a>'
+    return render_template('message.html', message='Not implemented yet')
 
 
 @app.route('/<regex("[A-Za-z0-9_-]{6,8}"):slug>')
