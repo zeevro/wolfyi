@@ -15,9 +15,9 @@
                 {% for u in current_user.urls|sort(attribute='created')|reverse %}
                 <tr>
                     <td>
-                        <a href="javascript:copy('{{ request.base_url }}{{ u.id }}')">
+                        <a href="javascript:copy('{{ request.host_url }}{{ u.id }}')">
                             <i class="fa fa-paste"></i>
-                            {{ request.base_url }}{{ u.id }}
+                            {{ request.host_url }}{{ u.id }}
                         </a>
                     </td>
                     <td>

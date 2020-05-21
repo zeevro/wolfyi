@@ -2,13 +2,13 @@
 
 {% block content %}
 <h3>Shortened URL</h3>
-<a href="javascript:copy('{{ request.base_url }}{{ url.id }}')">
+<a href="javascript:copy('{{ request.host_url }}{{ url.id }}')">
     <i class="fa fa-paste"></i>
-    {{ request.base_url }}{{ url.id }}
+    {{ request.host_url }}{{ url.id }}
 </a>
 &rarr;
 <a href="{{ url.url|safe }}">{{ url.url|safe }}</a>
 <script>
-    copy('{{ request.base_url }}{{ url.id }}');
+    copy('{{ request.host_url }}{{ url.id }}');
 </script>
 {% endblock %}
