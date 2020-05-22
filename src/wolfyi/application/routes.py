@@ -86,7 +86,7 @@ def edit_url():
     url.url = request.form['url']
     if '://' not in url.url:
         url.url = 'http://' + url.url
-    taken = URL.query.filter(URL.user_id == current_user.id and URL.url == url.url).first()
+    taken = URL.query.filter(URL.user_id == current_user.id, URL.url == url.url).first()
     if taken:
         db.session.rollback()
         return render_template('message.html', message=f'URL already taken by { request.host_url }{ taken.id }')
