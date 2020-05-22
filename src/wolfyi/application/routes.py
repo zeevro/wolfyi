@@ -9,10 +9,11 @@ from sqlalchemy.exc import IntegrityError
 
 from . import db
 from .models import Invite, URL, User
-from .utils import is_valid_email, normalize_url_input
+from .utils import is_valid_email, normalize_url_input, redirect_to_https
 
 
 @app.route('/register', methods=['GET', 'POST'])
+@redirect_to_https
 def register():
     invite = Invite.query.get(request.values.get('invite', ''))
 
@@ -44,6 +45,7 @@ def register():
 
 
 @app.route('/login', methods=['GET', 'POST'])
+@redirect_to_https
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
@@ -62,6 +64,7 @@ def login():
 
 
 @app.route('/logout')
+@redirect_to_https
 def logout():
     logout_user()
     return redirect(url_for('login'))
@@ -69,12 +72,14 @@ def logout():
 
 @app.route('/')
 @login_required
+@redirect_to_https
 def index():
     return render_template('index.html')
 
 
 @app.route('/add', methods=['GET', 'POST'])
 @login_required
+@redirect_to_https
 def add_url():
     url = normalize_url_input(request.values['url'])
 
@@ -107,6 +112,7 @@ def add_url():
 
 @app.route('/edit', methods=['GET', 'POST'])
 @login_required
+@redirect_to_https
 def edit_url():
     url = URL.query.filter(URL.id == request.values['id'], URL.user_id == current_user.id).first_or_404()
     if request.method == 'GET':
@@ -130,6 +136,7 @@ def edit_url():
 
 @app.route('/delete')
 @login_required
+@redirect_to_https
 def delete_url():
     url = URL.query.filter(URL.id == request.args['id'], URL.user_id == current_user.id).first_or_404()
     if not request.args.get('sure', None):
@@ -141,6 +148,7 @@ def delete_url():
 
 @app.route('/account', methods=['GET', 'POST'])
 @login_required
+@redirect_to_https
 def account():
     if request.method == 'GET':
         return render_template('account.html')
