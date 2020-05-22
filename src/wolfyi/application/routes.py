@@ -8,13 +8,39 @@ from flask_login import current_user, login_required, login_user, logout_user
 from sqlalchemy.exc import IntegrityError
 
 from . import db
-from .models import URL, User
-from .utils import normalize_url_input
+from .models import Invite, URL, User
+from .utils import is_valid_email, normalize_url_input
 
 
-@app.route('/signup', methods=['GET', 'POST'])
-def signup():
-    return 'Not yet implemented.<br /><a href="/">Go home</a>'
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    invite = Invite.query.get(request.values.get('invite', ''))
+
+    if request.method == 'GET':
+        return render_template('register.html', invite=invite)
+
+    if not is_valid_email(request.form['email']):
+        return render_template('register.html', invite=invite, error='Invalid email')
+
+    if User.query.filter(User.email == request.form['email']).count():
+        return render_template('register.html', invite=invite, error='Email already taken')
+
+    if not request.form['password']:
+        return render_template('register.html', invite=invite, error='Invalid password')
+
+    if request.form['password'] != request.form['password2']:
+        return render_template('register.html', invite=invite, error='Passwords did not match')
+
+    new_user = User(request.form['email'], request.form['password'])
+    db.session.add(new_user)
+    db.session.flush()
+    invite.used = datetime.utcnow()
+    invite.used_by = new_user.id
+    db.session.commit()
+
+    login_user(new_user)
+
+    return redirect(url_for('index'))
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -52,6 +78,9 @@ def index():
 def add_url():
     url = normalize_url_input(request.values['url'])
 
+    if not url:
+        return redirect(url_for('index'))
+
     old_url = URL.query.filter(URL.user_id == current_user.id, URL.url == url).first()
     if old_url is not None:
         return render_template('created.html', url=old_url)
@@ -84,6 +113,9 @@ def edit_url():
         return render_template('edit.html', url=url)
 
     new_url = normalize_url_input(request.form['url'])
+
+    if not new_url:
+        return render_template('message.html', message=f'Empty URL')
 
     taken = URL.query.filter(URL.user_id == current_user.id, URL.url == new_url).first()
     if taken:

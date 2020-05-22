@@ -6,6 +6,15 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from . import db
 
 
+class Invite(db.Model):
+    __tablename__ = 'invites'
+
+    id = db.Column(db.String(64), primary_key=True)
+    created = db.Column(db.DateTime, index=False, unique=False, nullable=False)
+    used = db.Column(db.DateTime, index=False, unique=False, nullable=True)
+    used_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+
+
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
 
