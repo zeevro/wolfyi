@@ -10,7 +10,7 @@
         <div class="card-panel">
             <small class="right">{{ u.created }}</small>
             <div class="card-content">
-                <a href="{{ u.url|safe }}" style="overflow-wrap: break-word;">{{ u.url|safe }}</a>
+                <a href="{{ u.url|safe }}" target="#" style="overflow-wrap: break-word;">{{ u.url|safe }}</a>
             </div>
             <div class="card-content">
                 <a href="javascript:copy('{{ request.host }}/{{ u.id }}')" class="btn-flat waves-effect" style="text-transform: none;"><i class="material-icons right">content_copy</i><code>{{ request.host }}/{{ u.id }}</code></a>
