@@ -2,11 +2,12 @@
 
 {% block content %}
     <h3>Edit URL</h3>
-    {{ request.host_url }}{{ url.id }} &rarr; {{ url.url }}
+    <code>{{ request.host_url }}{{ url.id }}</code> &rarr; {{ url.url }}
     <form method="POST">
         <input type="hidden" name="id" value="{{ url.id }}" />
         <label for="url">New URL:</label>
-        <input id="url" name="url" />
+        <input id="url" name="url" {{ request.form.url or url.url }} />
+        <a href="{{ url_for('index') }}" class="btn grey">Back</a>
         <input type="submit" value="Save" class="btn" />
     </form>
 {% endblock %}

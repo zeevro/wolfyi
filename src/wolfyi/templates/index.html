@@ -13,7 +13,7 @@
                 <a href="{{ u.url|safe }}" style="overflow-wrap: break-word;">{{ u.url|safe }}</a>
             </div>
             <div class="card-content">
-                <a href="javascript:copy('{{ request.host_url }}{{ u.id }}')" class="btn-flat waves-effect"><i class="material-icons right">content_copy</i><code>{{ request.host_url }}{{ u.id }}</code></a>
+                <a href="javascript:copy('{{ request.host_url }}{{ u.id }}')" class="btn-flat waves-effect" style="text-transform: none;"><i class="material-icons right">content_copy</i><code>{{ request.host_url }}{{ u.id }}</code></a>
             </div>
             <div class="card-content">
                 <a href="{{ url_for('edit_url', id=u.id) }}" class="btn-small"><i class="tiny material-icons left">edit</i>Edit</a>
