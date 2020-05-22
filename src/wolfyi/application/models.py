@@ -19,8 +19,8 @@ class User(UserMixin, db.Model):
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(128), unique=True, index=True)
-    password_hash = db.Column(db.String(64), nullable=False)
+    email = db.Column(db.String(128), index=True, unique=True, nullable=False)
+    password_hash = db.Column(db.String(64), index=False, unique=False,  nullable=False)
     created = db.Column(db.DateTime, index=False, unique=False, nullable=False)
 
     urls = db.relationship('URL')
@@ -43,8 +43,17 @@ class URL(db.Model):
     __tablename__ = 'urls'
 
     id = db.Column(db.String(8), primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     url = db.Column(db.Text, index=False, unique=False, nullable=False)
     created = db.Column(db.DateTime, index=False, unique=False, nullable=False)
 
     db.UniqueConstraint('user_id', 'url')
+
+
+class Visit(db.Model):
+    __tablename__ = 'visits'
+
+    id = db.Column(db.Integer, primary_key=True)
+    url_id = db.Column(db.String(8), db.ForeignKey('urls.id'), nullable=False)
+    source_addr = db.Column(db.String(45), index=False, unique=False, nullable=False)
+    created = db.Column(db.DateTime, index=False, unique=False, nullable=False)

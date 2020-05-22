@@ -8,7 +8,7 @@ from flask_login import current_user, login_required, login_user, logout_user
 from sqlalchemy.exc import IntegrityError
 
 from . import db
-from .models import Invite, URL, User
+from .models import Invite, URL, User, Visit
 from .utils import is_valid_email, normalize_url_input, redirect_to_https
 
 
@@ -174,7 +174,14 @@ def account():
 
 @app.route('/<regex("[A-Za-z0-9_-]{6,8}"):slug>')
 def redirect_to_url(slug):
-    url = URL.query.filter(URL.id == slug).first()
-    if url is None:
-        return abort(404)
+    url = URL.query.get_or_404(slug)
+
+    new_visit = Visit(
+        url_id=url.id,
+        source_addr=request.remote_addr,
+        created=datetime.utcnow(),
+    )
+    db.session.add(new_visit)
+    db.session.commit()
+
     return redirect(url.url)
