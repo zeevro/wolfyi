@@ -3,12 +3,13 @@ from datetime import datetime
 
 from flask import abort
 from flask import current_app as app
-from flask import redirect, render_template, request, url_for, session
-from flask_login import current_user, login_user, login_required, logout_user
+from flask import redirect, render_template, request, url_for
+from flask_login import current_user, login_required, login_user, logout_user
 from sqlalchemy.exc import IntegrityError
 
 from . import db
-from .models import User, URL
+from .models import URL, User
+from .utils import normalize_url_input
 
 
 @app.route('/signup', methods=['GET', 'POST'])
@@ -49,9 +50,7 @@ def index():
 @app.route('/add', methods=['GET', 'POST'])
 @login_required
 def add_url():
-    url = request.values['url']
-    if '://' not in url:
-        url = 'http://' + url
+    url = normalize_url_input(request.values['url'])
 
     old_url = URL.query.filter(URL.user_id == current_user.id, URL.url == url).first()
     if old_url is not None:
@@ -83,14 +82,17 @@ def edit_url():
     url = URL.query.filter(URL.id == request.values['id'], URL.user_id == current_user.id).first_or_404()
     if request.method == 'GET':
         return render_template('edit.html', url=url)
-    url.url = request.form['url']
-    if '://' not in url.url:
-        url.url = 'http://' + url.url
-    taken = URL.query.filter(URL.user_id == current_user.id, URL.url == url.url).first()
+
+    new_url = normalize_url_input(request.form['url'])
+
+    taken = URL.query.filter(URL.user_id == current_user.id, URL.url == new_url).first()
     if taken:
         db.session.rollback()
         return render_template('message.html', message=f'URL already taken by { request.host_url }{ taken.id }')
+
+    url.url = new_url
     db.session.commit()
+
     return redirect(url_for('index'))
 
 
