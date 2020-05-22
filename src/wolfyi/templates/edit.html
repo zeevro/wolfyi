@@ -2,7 +2,7 @@
 
 {% block content %}
     <h3>Edit URL</h3>
-    <code>{{ request.host_url }}{{ url.id }}</code> &rarr; {{ url.url }}
+    <code>{{ request.host }}/{{ url.id }}</code> &rarr; {{ url.url }}
     <form method="POST">
         <input type="hidden" name="id" value="{{ url.id }}" />
         <label for="url">New URL:</label>

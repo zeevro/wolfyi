@@ -5,7 +5,7 @@
     <h3>Existing:</h3>
     {% for u in current_user.urls|sort(attribute='created')|reverse %}
         {% if copy == u.id %}
-            <script>copy('{{ request.host_url }}{{ u.id }}')</script>
+            <script>copy('{{ request.host }}/{{ u.id }}')</script>
         {% endif %}
         <div class="card-panel">
             <small class="right">{{ u.created }}</small>
@@ -13,7 +13,7 @@
                 <a href="{{ u.url|safe }}" style="overflow-wrap: break-word;">{{ u.url|safe }}</a>
             </div>
             <div class="card-content">
-                <a href="javascript:copy('{{ request.host_url }}{{ u.id }}')" class="btn-flat waves-effect" style="text-transform: none;"><i class="material-icons right">content_copy</i><code>{{ request.host_url }}{{ u.id }}</code></a>
+                <a href="javascript:copy('{{ request.host }}/{{ u.id }}')" class="btn-flat waves-effect" style="text-transform: none;"><i class="material-icons right">content_copy</i><code>{{ request.host }}/{{ u.id }}</code></a>
             </div>
             <div class="card-content">
                 <a href="{{ url_for('edit_url', id=u.id) }}" class="btn-small"><i class="tiny material-icons left">edit</i>Edit</a>

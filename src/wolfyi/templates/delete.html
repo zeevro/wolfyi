@@ -2,7 +2,7 @@
 
 {% block content %}
     <h3>Delete URL</h3>
-    <code>{{ request.host_url }}{{ url.id }}</code> &rarr; {{ url.url }}
+    <code>{{ request.host }}/{{ url.id }}</code> &rarr; {{ url.url }}
     <br />
     <h4>Are you sure?</h4>
     <a class="btn grey" href="{{ url_for('index') }}">No</a>
