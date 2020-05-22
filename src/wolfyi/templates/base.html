@@ -1,14 +1,17 @@
 <!DOCTYPE html>
+{% set error = error or request.args.error %}
+{% set message = message or request.args.message %}
 <html>
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" />
+        <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" />-->
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" />
         <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
         <script>
             function copy(text) {
                 navigator.clipboard.writeText(text);
-                M.toast({ html: 'Copied' });
+                M.toast({ html: 'Copied ' + text });
             }
         </script>
         <title>URL Shortener</title>
@@ -17,7 +20,7 @@
     <body>
         <nav>
             <div class="nav-wrapper">
-                <a href="/" class="brand-logo">Home</a>
+                <a href="/" class="brand-logo left">Home</a>
                 <ul id="nav-mobile" class="right">
                 {% if current_user.is_anonymous %}
                     <li><a href="{{ url_for('login') }}">Login</a></li>
@@ -31,6 +34,8 @@
         </nav>
         <div class="container">
             {% block content %}{% endblock %}
+            {% if error %}<div class="card-panel red">{{ error }}</div>{% endif %}
+            {% if message %}<div class="card-panel teal">{{ message }}</div>{% endif %}
         </div>
     </body>
 </html>

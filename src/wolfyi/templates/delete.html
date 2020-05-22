@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h3>Delete URL</h3>
-{{ request.host_url }}{{ url.id }} &rarr; {{ url.url }}
-<br />
-<h4>Are you sure?</h4>
-<a class="btn" href="{{ url_for('delete_url', id=url.id, sure='yes') }}">Yes</a>
-<a class="btn" href="{{ url_for('index') }}">No</a>
+    <h3>Delete URL</h3>
+    {{ request.host_url }}{{ url.id }} &rarr; {{ url.url }}
+    <br />
+    <h4>Are you sure?</h4>
+    <a class="btn" href="{{ url_for('delete_url', id=url.id, sure='yes') }}">Yes</a>
+    <a class="btn" href="{{ url_for('index') }}">No</a>
 {% endblock %}

@@ -54,7 +54,7 @@ def login():
     user = User.query.filter(User.email == request.form['email']).first()
 
     if user is None or not user.check_password(request.form['password']):
-        return 'Wrong email or password'
+        return render_template('login.html', error='Wrong email or password')
 
     login_user(user, remember=True)
 
@@ -83,7 +83,7 @@ def add_url():
 
     old_url = URL.query.filter(URL.user_id == current_user.id, URL.url == url).first()
     if old_url is not None:
-        return render_template('created.html', url=old_url)
+        return render_template('index.html', copy=old_url.id)
 
     new_url = URL(
         user_id=current_user.id,
@@ -102,7 +102,7 @@ def add_url():
 
         break
 
-    return render_template('created.html', url=new_url)
+    return render_template('index.html', copy=new_url.id)
 
 
 @app.route('/edit', methods=['GET', 'POST'])
@@ -115,12 +115,12 @@ def edit_url():
     new_url = normalize_url_input(request.form['url'])
 
     if not new_url:
-        return render_template('message.html', message=f'Empty URL')
+        return render_template('edit.html', url=url, error=f'Empty URL')
 
     taken = URL.query.filter(URL.user_id == current_user.id, URL.url == new_url).first()
     if taken:
         db.session.rollback()
-        return render_template('message.html', message=f'URL already taken by { request.host_url }{ taken.id }')
+        return render_template('edit.html', url=url, error=f'URL already taken by { request.host_url }{ taken.id }')
 
     url.url = new_url
     db.session.commit()
@@ -136,7 +136,7 @@ def delete_url():
         return render_template('delete.html', url=url)
     db.session.delete(url)
     db.session.commit()
-    return redirect(url_for('index'))
+    return redirect(url_for('index', message=f'{ request.host_url }{ url.id } deleted.'))
 
 
 @app.route('/account', methods=['GET', 'POST'])
