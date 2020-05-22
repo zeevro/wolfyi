@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+        <h3>Manage account</h3>
+        <h4>Change password</h4>
+        <form method="POST">
+            <label for="old_password">Old password:</label>
+            <input type="password" id="old_password" name="old_password" />
+            <label for="password">New password:</label>
+            <input type="password" id="password" name="password" />
+            <label for="password2">New password again:</label>
+            <input type="password" id="password2" name="password2" />
+            {% if error %}
+                <div class="card-panel red">{{ error }}</div>
+            {% endif %}
+            {% if message %}
+                <div class="card-panel teal">{{ message }}</div>
+            {% endif %}
+            <input type="submit" class="btn" value="Save" />
+        </form>
+{% endblock %}

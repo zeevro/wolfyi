@@ -15,21 +15,21 @@
         {% block head_content %}{% endblock %}
     </head>
     <body>
+        <nav>
+            <div class="nav-wrapper">
+                <a href="/" class="brand-logo">Home</a>
+                <ul id="nav-mobile" class="right">
+                {% if current_user.is_anonymous %}
+                    <li><a href="{{ url_for('login') }}">Login</a></li>
+                    <li><a href="{{ url_for('register') }}">Register</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('account') }}" title="Mannage account">{{ current_user.email }}</a></li>
+                    <li><a href="{{ url_for('logout') }}">Logout</a></li>
+                {% endif %}
+                </ul>
+            </div>
+        </nav>
         <div class="container">
-            <nav>
-                <div class="nav-wrapper">
-                    <a href="/" class="brand-logo">Home</a>
-                    <ul id="nav-mobile" class="right hide-on-med-and-down">
-                    {% if current_user.is_anonymous %}
-                        <li><a href="{{ url_for('login') }}">Login</a></li>
-                        <li><a href="{{ url_for('register') }}">Register</a></li>
-                    {% else %}
-                        <li><a href="{{ url_for('account') }}" title="Mannage account">{{ current_user.email }}</a></li>
-                        <li><a href="{{ url_for('logout') }}">Logout</a></li>
-                    {% endif %}
-                    </ul>
-                </div>
-            </nav>
             {% block content %}{% endblock %}
         </div>
     </body>

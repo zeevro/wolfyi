@@ -142,7 +142,26 @@ def delete_url():
 @app.route('/account', methods=['GET', 'POST'])
 @login_required
 def account():
-    return render_template('message.html', message='Not implemented yet')
+    if request.method == 'GET':
+        return render_template('account.html')
+
+    if not request.form['password']:
+        return render_template('account.html', error='Invalid password')
+
+    if request.form['password'] == request.form['old_password']:
+        return render_template('account.html', error='Same as old password')
+
+    if request.form['password'] != request.form['password2']:
+        return render_template('account.html', error='Passwords did not match')
+
+    if not current_user.check_password(request.form['old_password']):
+        return render_template('account.html', error='Old password is wrong')
+
+    user = db.session.query(User).get(current_user.id)
+    user.set_password(request.form['password'])
+    db.session.commit()
+
+    return render_template('account.html', message='Password changed')
 
 
 @app.route('/<regex("[A-Za-z0-9_-]{6,8}"):slug>')
