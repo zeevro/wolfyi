@@ -6,6 +6,7 @@ from flask import Flask, redirect, render_template
 # from flask_admin.contrib.sqla import ModelView
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.middleware.proxy_fix import ProxyFix
 from werkzeug.routing import BaseConverter
 
 
@@ -25,6 +26,8 @@ def create_app(echo=False):
     app.url_map.converters['regex'] = RegexConverter
 
     app.secret_key = b'\xa3\xb7i\x00\xab\x02\xa3n\n\xb8\x0fREi\xa6zyr\x0c\x91\xd62c\x0c\x8f`\x8c\\\xd5:C\\'
+
+    app.wsgi_app = ProxyFix(app.wsgi_app)
 
     db_dir_path = appdirs.site_data_dir('wolfyi')
     os.makedirs(db_dir_path, exist_ok=True)
