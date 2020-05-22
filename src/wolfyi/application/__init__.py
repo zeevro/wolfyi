@@ -26,7 +26,7 @@ def create_app(echo=False):
 
     app.secret_key = b'\xa3\xb7i\x00\xab\x02\xa3n\n\xb8\x0fREi\xa6zyr\x0c\x91\xd62c\x0c\x8f`\x8c\\\xd5:C\\'
 
-    db_dir_path = appdirs.user_data_dir('wolfyi')
+    db_dir_path = appdirs.site_data_dir('wolfyi')
     os.makedirs(db_dir_path, exist_ok=True)
     db_path = os.path.join(db_dir_path, 'test.db')
 
