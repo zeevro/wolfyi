@@ -36,7 +36,9 @@ setup(
     ],
     entry_points=dict(
         console_scripts=[
-            'wolfyi = wolfyi.run:main',
+            'wolfyi-server = wolfyi.run:main',
+            'wolfyi-add-user = wolfyi.add_user:main',
+            'wolfyi-create-invite = wolfyi.create_invite:main',
         ],
     ),
 )

@@ -19,7 +19,7 @@ db = SQLAlchemy()
 login = LoginManager()
 
 
-def create_app():
+def create_app(echo=False):
     app = Flask(__name__, template_folder='../templates')
     app.url_map.strict_slashes = False
     app.url_map.converters['regex'] = RegexConverter
@@ -30,10 +30,11 @@ def create_app():
     os.makedirs(db_dir_path, exist_ok=True)
     db_path = os.path.join(db_dir_path, 'test.db')
 
-    print(f'DB path: {db_path}')
+    if echo:
+        print(f'DB path: {db_path}')
 
     app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}?check_same_thread=False'
-    app.config['SQLALCHEMY_ECHO'] = True
+    app.config['SQLALCHEMY_ECHO'] = echo
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     db.init_app(app)
