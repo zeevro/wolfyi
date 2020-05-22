@@ -16,6 +16,10 @@ class RegexConverter(BaseConverter):
         self.regex = items[0]
 
 
+def format_date(dt):
+    return dt.strftime('%Y-%m-%d %I:%M:%S')
+
+
 db = SQLAlchemy()
 login = LoginManager()
 
@@ -24,6 +28,7 @@ def create_app(echo=False):
     app = Flask(__name__, template_folder='../templates')
     app.url_map.strict_slashes = False
     app.url_map.converters['regex'] = RegexConverter
+    app.add_template_filter(format_date, 'format_date')
 
     app.secret_key = b'\xa3\xb7i\x00\xab\x02\xa3n\n\xb8\x0fREi\xa6zyr\x0c\x91\xd62c\x0c\x8f`\x8c\\\xd5:C\\'
 

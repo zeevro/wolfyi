@@ -8,7 +8,7 @@
             <script>copy('{{ request.host }}/{{ u.id }}')</script>
         {% endif %}
         <div class="card-panel">
-            <small class="right">{{ u.created }}</small>
+            <small class="right">{{ u.created|format_date }}</small>
             <div class="card-content">
                 <a href="{{ u.url|safe }}" target="#" style="overflow-wrap: break-word;">{{ u.url|safe }} <i class="tiny material-icons">launch</i></a>
             </div>
