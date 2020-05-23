@@ -5,6 +5,7 @@ from flask import abort
 from flask import current_app as app
 from flask import redirect, render_template, request, url_for
 from flask_login import current_user, login_required, login_user, logout_user
+from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 
 from . import db
@@ -74,7 +75,13 @@ def logout():
 @login_required
 @redirect_to_https
 def index():
-    return render_template('index.html')
+    visits = dict(db.session.query(URL.id,
+                                   func.count(Visit.id))
+                            .filter(URL.user_id == current_user.id)
+                            .outerjoin(Visit)
+                            .group_by(URL.id)
+                            .all())
+    return render_template('index.html', visits=visits)
 
 
 @app.route('/add', methods=['GET', 'POST'])
@@ -88,7 +95,7 @@ def add_url():
 
     old_url = URL.query.filter(URL.user_id == current_user.id, URL.url == url).first()
     if old_url is not None:
-        return render_template('index.html', copy=old_url.id)
+        return redirect(url_for('index', copy=old_url.id))
 
     new_url = URL(
         user_id=current_user.id,
@@ -107,7 +114,7 @@ def add_url():
 
         break
 
-    return render_template('index.html', copy=new_url.id)
+    return redirect(url_for('index', copy=new_url.id))
 
 
 @app.route('/edit', methods=['GET', 'POST'])

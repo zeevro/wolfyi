@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% set copy = request.args['copy'] %}
+
 {% block content %}
     {% include 'create_form.html' %}
     <h3>Existing:</h3>
@@ -8,7 +10,7 @@
             <script>copy('{{ request.host }}/{{ u.id }}')</script>
         {% endif %}
         <div class="card-panel">
-            <small class="right">{{ u.created|format_date }}</small>
+            <small class="right">{{ u.created|format_date }} ({{ visits[u.id] }})</small>
             <div class="card-content">
                 <a href="{{ u.url|safe }}" target="#" style="overflow-wrap: break-word;">{{ u.url|safe }} <i class="tiny material-icons">launch</i></a>
             </div>

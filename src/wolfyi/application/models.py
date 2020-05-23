@@ -47,6 +47,9 @@ class URL(db.Model):
     url = db.Column(db.Text, index=False, unique=False, nullable=False)
     created = db.Column(db.DateTime, index=False, unique=False, nullable=False)
 
+    user = db.relationship('User', back_populates='urls')
+    visits = db.relationship('Visit')
+
     db.UniqueConstraint('user_id', 'url')
 
 
@@ -57,3 +60,5 @@ class Visit(db.Model):
     url_id = db.Column(db.String(8), db.ForeignKey('urls.id'), nullable=False)
     source_addr = db.Column(db.String(45), index=False, unique=False, nullable=False)
     created = db.Column(db.DateTime, index=False, unique=False, nullable=False)
+
+    url = db.relationship('URL', back_populates='visits')
