@@ -1,7 +1,6 @@
 import secrets
 from datetime import datetime
 
-from flask import abort
 from flask import current_app as app
 from flask import redirect, render_template, request, url_for
 from flask_login import current_user, login_required, login_user, logout_user
