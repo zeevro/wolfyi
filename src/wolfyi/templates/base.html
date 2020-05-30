@@ -12,6 +12,10 @@
                 navigator.clipboard.writeText(text);
                 M.toast({ html: 'Copied ' + text });
             }
+
+            document.addEventListener('DOMContentLoaded', function() {
+                M.AutoInit();
+            });
         </script>
         <title>URL Shortener</title>
         {% block head_content %}{% endblock %}
