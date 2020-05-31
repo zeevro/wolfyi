@@ -3,7 +3,6 @@
 {% set copy = request.args['copy'] %}
 
 {% block head_content %}
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script> -->
     <script src="https://cdn.jsdelivr.net/npm/davidshimjs-qrcodejs/qrcode.min.js"></script>
 {% endblock %}
 
@@ -20,7 +19,7 @@
                 <a href="{{ u.url|safe }}" target="#" style="overflow-wrap: break-word;">{{ u.url|safe }} <i class="tiny material-icons">launch</i></a>
             </div>
             <div class="card-content">
-                <a href="javascript:copy('{{ request.host }}/{{ u.id }}')" class="btn-flat waves-effect" style="text-transform: none;"><i class="material-icons right">content_copy</i><code>{{ request.host }}/{{ u.id }}</code></a>
+                <a onclick="copy('{{ request.host }}/{{ u.id }}')" class="btn-flat waves-effect" style="text-transform: none;"><i class="material-icons right">content_copy</i><code>{{ request.host }}/{{ u.id }}</code></a>
             </div>
             <div class="card-content">
                 <a class="waves-effect waves-light btn-small modal-trigger" href="#edit_{{ u.id }}"><i class="material-icons left">edit</i>Edit</a>
@@ -39,7 +38,7 @@
                     <input id="url" name="url" value="{{ u.url }}" />
                 </div>
                 <div class="modal-footer">
-                    <a href="#" class="btn grey waves-effect waves-light modal-action modal-close">Back</a>
+                    <a class="btn grey waves-effect waves-light modal-action modal-close">Back</a>
                     <input type="submit" value="Save" class="btn waves-effect waves-light" />
                 </div>
             </form>
@@ -50,21 +49,19 @@
                 <h5>Are you sure?</h5>
             </div>
             <div class="modal-footer">
-                <a href="#" class="btn grey waves-effect waves-light modal-action modal-close">No</a>
+                <a class="btn grey waves-effect waves-light modal-action modal-close">No</a>
                 <a href="/delete?id={{ u.id }}&sure=true" class="btn waves-effect waves-light modal-action modal-close">Yes</a>
             </div>
         </div>
         <div id="qrcode_{{ u.id }}" class="modal">
             <div class="modal-content">
                 <div id="qrcode_img_{{ u.id }}"></div>
-                <script>
-                    new QRCode(document.getElementById('qrcode_img_{{ u.id }}'), '{{ request.host }}/{{ u.id }}');
-                </script>
                 <code>{{ request.host }}/{{ u.id }}</code>
             </div>
             <div class="modal-footer">
-                <a href="#" class="btn grey waves-effect waves-light modal-action modal-close">Back</a>
+                <a class="btn grey waves-effect waves-light modal-action modal-close">Back</a>
             </div>
+            <script>new QRCode(document.getElementById('qrcode_img_{{ u.id }}'), '{{ request.host }}/{{ u.id }}');</script>
         </div>
     {% endfor %}
 {% endblock %}
