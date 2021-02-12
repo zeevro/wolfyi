@@ -35,8 +35,9 @@ def register():
     new_user = User(request.form['email'], request.form['password'])
     db.session.add(new_user)
     db.session.flush()
-    invite.used = datetime.utcnow()
-    invite.used_by = new_user.id
+    if invite is not None:
+        invite.used = datetime.utcnow()
+        invite.used_by = new_user.id
     db.session.commit()
 
     login_user(new_user)
