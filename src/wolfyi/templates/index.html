@@ -16,7 +16,7 @@
         <div class="card-panel">
             <small class="right">{{ u.created|format_date }} ({{ visits[u.id] }})</small>
             <div class="card-content">
-                <a href="{{ u.url|safe }}" target="#" style="overflow-wrap: break-word;">{{ u.url|safe }} <i class="tiny material-icons">launch</i></a>
+                <a href="{{ u.url|safe }}" target="_blank" style="overflow-wrap: break-word;">{{ u.url|safe }} <i class="tiny material-icons">launch</i></a>
             </div>
             <div class="card-content">
                 <a onclick="copy('{{ request.host }}/{{ u.id }}')" class="btn-flat waves-effect" style="text-transform: none;"><i class="material-icons right">content_copy</i><code>{{ request.host }}/{{ u.id }}</code></a>
