@@ -1,13 +1,21 @@
 import os
 
 import appdirs
-from flask import Flask, redirect, render_template
-# from flask_admin import Admin
-# from flask_admin.contrib.sqla import ModelView
-from flask_login import LoginManager
+from flask import Flask
+from flask_admin import Admin
+from flask_admin.contrib.sqla import ModelView
+from flask_login import LoginManager, current_user
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.middleware.proxy_fix import ProxyFix
 from werkzeug.routing import BaseConverter
+
+
+class MyModelView(ModelView):
+    def is_accessible(self):
+        try:
+            return current_user.is_authenticated and current_user.is_admin
+        except Exception:
+            return False
 
 
 class RegexConverter(BaseConverter):
@@ -47,19 +55,20 @@ def create_app(echo=False):
 
     db.init_app(app)
     login.init_app(app)
+    login.login_view = 'login'
 
-    # admin = Admin(app)
+    admin = Admin(app)
 
     with app.app_context():
-        from . import routes
-        from . import models
+        from . import models, routes
 
         db.create_all()
 
-        # admin.add_view(ModelView(models.User, db.session))
-        # admin.add_view(ModelView(models.URL, db.session))
-
         login.user_loader(models.User.query.get)
-        login.login_view = 'login'
 
-        return app
+        admin.add_view(MyModelView(models.Invite, db.session))
+        admin.add_view(MyModelView(models.User, db.session))
+        admin.add_view(MyModelView(models.URL, db.session))
+        admin.add_view(MyModelView(models.Visit, db.session))
+
+    return app

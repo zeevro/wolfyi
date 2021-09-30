@@ -10,18 +10,19 @@ class Invite(db.Model):
     __tablename__ = 'invites'
 
     id = db.Column(db.String(64), primary_key=True)
-    created = db.Column(db.DateTime, index=False, unique=False, nullable=False)
-    used = db.Column(db.DateTime, index=False, unique=False, nullable=True)
-    used_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    created = db.Column(db.DateTime, nullable=False)
+    used = db.Column(db.DateTime)
+    used_by = db.Column(db.Integer, db.ForeignKey('users.id'))
 
 
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(128), index=True, unique=True, nullable=False)
-    password_hash = db.Column(db.String(64), index=False, unique=False,  nullable=False)
-    created = db.Column(db.DateTime, index=False, unique=False, nullable=False)
+    email = db.Column(db.String(128), index=True, nullable=False)
+    password_hash = db.Column(db.String(64),  nullable=False)
+    created = db.Column(db.DateTime, nullable=False)
+    is_admin = db.Column(db.Boolean, nullable=False, default=False)
 
     urls = db.relationship('URL')
 
@@ -44,8 +45,8 @@ class URL(db.Model):
 
     id = db.Column(db.String(8), primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    url = db.Column(db.Text, index=False, unique=False, nullable=False)
-    created = db.Column(db.DateTime, index=False, unique=False, nullable=False)
+    url = db.Column(db.Text, nullable=False)
+    created = db.Column(db.DateTime, nullable=False)
 
     user = db.relationship('User', back_populates='urls')
     visits = db.relationship('Visit')
@@ -58,7 +59,7 @@ class Visit(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     url_id = db.Column(db.String(8), db.ForeignKey('urls.id'), nullable=False)
-    source_addr = db.Column(db.String(45), index=False, unique=False, nullable=False)
-    created = db.Column(db.DateTime, index=False, unique=False, nullable=False)
+    source_addr = db.Column(db.String(45), nullable=False)
+    created = db.Column(db.DateTime, nullable=False)
 
     url = db.relationship('URL', back_populates='visits')

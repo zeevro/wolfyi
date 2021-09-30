@@ -31,6 +31,7 @@ setup(
         'appdirs',
         'flask',
         'sqlalchemy',
+        'flask_admin',
         'flask_login',
         'flask_sqlalchemy',
     ],
