@@ -24,7 +24,7 @@ class User(UserMixin, db.Model):
     created = db.Column(db.DateTime, nullable=False)
     is_admin = db.Column(db.Boolean, nullable=False, default=False)
 
-    urls = db.relationship('URL')
+    urls = db.relationship('URL', cascade='all, delete-orphan')
 
     def __init__(self, email, password):
         self.email = email
@@ -49,7 +49,7 @@ class URL(db.Model):
     created = db.Column(db.DateTime, nullable=False)
 
     user = db.relationship('User', back_populates='urls')
-    visits = db.relationship('Visit')
+    visits = db.relationship('Visit', cascade='all, delete-orphan')
 
     db.UniqueConstraint('user_id', 'url')
 
