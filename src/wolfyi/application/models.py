@@ -26,6 +26,9 @@ class User(UserMixin, db.Model):
 
     urls = db.relationship('URL', cascade='all, delete-orphan')
 
+    def __str__(self):
+        return f'<User #{self.id} {self.email}>'
+
     def __init__(self, email, password):
         self.email = email
         self.created = datetime.utcnow()
@@ -53,6 +56,8 @@ class URL(db.Model):
 
     db.UniqueConstraint('user_id', 'url')
 
+    def __str__(self):
+        return f'<URL {self.id} => {self.url}>'
 
 class Visit(db.Model):
     __tablename__ = 'visits'
