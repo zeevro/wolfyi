@@ -13,31 +13,36 @@ from .utils import is_valid_email, normalize_url_input, redirect_to_https
 
 
 @app.route('/register', methods=['GET', 'POST'])
-@redirect_to_https
 def register():
-    invite = Invite.query.get(request.values.get('invite', ''))
+    invite_code = request.values.get('invite', '')
 
     if request.method == 'GET':
-        return render_template('register.html', invite=invite)
+        return render_template('register.html', invite_code=invite_code)
+
+    invite = Invite.query.get(invite_code)
+
+    if invite is None:
+        return render_template('register.html', invite_code=invite_code, error='Invalid invite code')
 
     if not is_valid_email(request.form['email']):
-        return render_template('register.html', invite=invite, error='Invalid email')
+        return render_template('register.html', invite_code=invite_code, error='Invalid email')
 
     if User.query.filter(User.email == request.form['email']).count():
-        return render_template('register.html', invite=invite, error='Email already taken')
+        return render_template('register.html', invite_code=invite_code, error='Email already taken')
 
     if not request.form['password']:
-        return render_template('register.html', invite=invite, error='Invalid password')
+        return render_template('register.html', invite_code=invite_code, error='Invalid password')
 
     if request.form['password'] != request.form['password2']:
-        return render_template('register.html', invite=invite, error='Passwords did not match')
+        return render_template('register.html', invite_code=invite_code, error='Passwords did not match')
 
     new_user = User(request.form['email'], request.form['password'])
     db.session.add(new_user)
     db.session.flush()
-    if invite is not None:
-        invite.used = datetime.utcnow()
-        invite.used_by = new_user.id
+
+    invite.used = datetime.utcnow()
+    invite.used_by = new_user.id
+
     db.session.commit()
 
     login_user(new_user)

@@ -3,10 +3,8 @@
 {% block content %}
 <h3>Register</h3>
 <form method="POST">
-    {% if invite %}
-        <label for="invite">Invite code:</label>
-        <input id="invite" name="invite" value="{{ invite.id }}" disabled />
-    {% endif %}
+    <label for="invite">Invite code:</label>
+    <input id="invite" name="invite" value="{{ invite_code }}"{% if invite_code %} readonly{% endif %} />
     <label for="email">Email:</label>
     <input id="email" name="email" value="{{ request.form.email }}" />
     <label for="password">Password:</label>
