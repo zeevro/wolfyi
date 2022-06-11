@@ -39,7 +39,9 @@ def create_app(echo=False):
     login.login_view = 'login'
 
     with app.app_context():
-        from . import admin, models, routes  # Must import admin & routes here for them to register
+        from . import admin, api, models, routes  # Must import admin & routes here for them to register
+
+        app.register_blueprint(api.bp)
 
         db.create_all()
 

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+        <script>
+            function copy(text) {
+                navigator.clipboard.writeText(text);
+                M.toast({ html: 'Copied ' + text });
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+                M.AutoInit();
+            });
+        </script>
+        <title>URL Shortener</title>
+    </head>
+    <body>
+        <nav>
+            <div class="nav-wrapper">
+                <a href="/" class="brand-logo left"><code>wol.fyi</code></a>
+                <ul id="nav-mobile" class="right">
+                {% if current_user.is_anonymous %}
+                    <li><a href="{{ url_for('login') }}">Login</a></li>
+                    <li><a href="{{ url_for('register') }}">Register</a></li>
+                {% else %}
+                    <li><a class="modal-trigger" href="#account" title="Mannage account">{{ current_user.email }}</a></li>
+                    <li><a href="{{ url_for('logout') }}">Logout</a></li>
+                {% endif %}
+                </ul>
+            </div>
+        </nav>
+        <div id="app" class="container">
+            <div class="card-panel" v-for="u in urls">
+                <small class="right">{{ u.created }} ({{ [u.visits] }})</small>
+                <div class="card-content">
+                    <a v-bind:href="u.url" target="_blank" style="overflow-wrap: break-word;">{{ u.url }} <i class="tiny material-icons">launch</i></a>
+                </div>
+                <div class="card-content">
+                    <a v-on:click="copy(u.id)" class="btn-flat waves-effect" style="text-transform: none;"><i class="material-icons right">content_copy</i><code>{{ request.host }}/{{ u.id }}</code></a>
+                </div>
+                <div class="card-content">
+                    <a class="waves-effect waves-light btn-small modal-trigger" href="#edit_{{ u.id }}"><i class="material-icons left">edit</i>Edit</a>
+                    <a class="waves-effect waves-light btn-small modal-trigger" href="#delete_{{ u.id }}"><i class="material-icons left">delete</i>Delete</a>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
