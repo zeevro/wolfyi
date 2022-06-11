@@ -13,7 +13,11 @@ def main():
 
     app = create_app()
 
-    new_user = User(args.email, args.password or getpass.getpass())
+    new_user = User(
+        email=args.email,
+        password=args.password or getpass.getpass(),
+        is_admin=args.admin,
+    )
 
     with app.app_context():
         db.session.add(new_user)

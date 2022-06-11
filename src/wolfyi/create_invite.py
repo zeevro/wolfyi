@@ -8,7 +8,7 @@ from wolfyi.application.models import Invite
 def main():
     app = create_app()
 
-    new_invite = Invite(id=secrets.token_urlsafe(), created=datetime.utcnow())
+    new_invite = Invite()
 
     with app.app_context():
         db.session.add(new_invite)

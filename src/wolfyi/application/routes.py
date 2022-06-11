@@ -36,7 +36,10 @@ def register():
     if request.form['password'] != request.form['password2']:
         return render_template('register.html', invite_code=invite_code, error='Passwords did not match')
 
-    new_user = User(request.form['email'], request.form['password'])
+    new_user = User(
+        email=request.form['email'],
+        password=request.form['password'],
+    )
     db.session.add(new_user)
     db.session.flush()
 
@@ -101,7 +104,6 @@ def add_url():
     new_url = URL(
         user_id=current_user.id,
         url=url,
-        created=datetime.utcnow(),
     )
 
     while 1:
@@ -181,14 +183,6 @@ def account():
 def redirect_to_url(slug):
     url = URL.query.get_or_404(slug)
 
-    new_visit = Visit(
-        url_id=url.id,
-        source_addr=request.remote_addr,
-        full_url=request.url,
-        referrer=request.referrer,
-        created=datetime.utcnow(),
-    )
-    db.session.add(new_visit)
-    db.session.commit()
+    url.add_visit()
 
     return redirect(url.url)
