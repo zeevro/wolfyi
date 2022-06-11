@@ -7,8 +7,9 @@ from wolfyi.application.models import User
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument('-e', '--email', required=True)
-    p.add_argument('-p', '--password')
+    p.add_argument('email')
+    p.add_argument('password', nargs='?')
+    p.add_argument('-a', '--admin', action='store_true')
     args = p.parse_args()
 
     app = create_app()
