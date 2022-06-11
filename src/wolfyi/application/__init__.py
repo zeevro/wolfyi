@@ -2,30 +2,11 @@ import os
 
 import appdirs
 from flask import Flask
-from flask_admin import Admin
-from flask_admin.contrib.sqla import ModelView
-from flask_login import LoginManager, current_user
+from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.middleware.proxy_fix import ProxyFix
-from werkzeug.routing import BaseConverter
 
-
-class MyModelView(ModelView):
-    def is_accessible(self):
-        try:
-            return current_user.is_authenticated and current_user.is_admin
-        except Exception:
-            return False
-
-
-class RegexConverter(BaseConverter):
-    def __init__(self, url_map, *items):
-        super(RegexConverter, self).__init__(url_map)
-        self.regex = items[0]
-
-
-def format_date(dt):
-    return dt.strftime('%Y-%m-%d %I:%M:%S')
+from .utils import RegexConverter, format_date
 
 
 db = SQLAlchemy()
@@ -57,18 +38,13 @@ def create_app(echo=False):
     login.init_app(app)
     login.login_view = 'login'
 
-    admin = Admin(app)
-
     with app.app_context():
-        from . import models, routes
+        from . import admin, models, routes  # Must import admin & routes here for them to register
 
         db.create_all()
 
         login.user_loader(models.User.query.get)
 
-        admin.add_view(MyModelView(models.Invite, db.session))
-        admin.add_view(MyModelView(models.User, db.session))
-        admin.add_view(MyModelView(models.URL, db.session))
-        admin.add_view(MyModelView(models.Visit, db.session))
+        admin.admin.init_app(app)
 
     return app
