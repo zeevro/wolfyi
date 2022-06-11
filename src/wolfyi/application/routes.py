@@ -184,6 +184,8 @@ def redirect_to_url(slug):
     new_visit = Visit(
         url_id=url.id,
         source_addr=request.remote_addr,
+        full_url=request.url,
+        referrer=request.referrer,
         created=datetime.utcnow(),
     )
     db.session.add(new_visit)

@@ -59,12 +59,15 @@ class URL(db.Model):
     def __str__(self):
         return f'<URL {self.id} => {self.url}>'
 
+
 class Visit(db.Model):
     __tablename__ = 'visits'
 
     id = db.Column(db.Integer, primary_key=True)
     url_id = db.Column(db.String(8), db.ForeignKey('urls.id'), nullable=False)
     source_addr = db.Column(db.String(45), nullable=False)
+    full_url = db.Column(db.String(255))
+    referrer = db.Column(db.String(255))
     created = db.Column(db.DateTime, nullable=False)
 
     url = db.relationship('URL', back_populates='visits')
