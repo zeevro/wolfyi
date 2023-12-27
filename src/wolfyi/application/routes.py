@@ -1,15 +1,14 @@
-import secrets
-from datetime import datetime
+import time
 
 from flask import current_app as app
 from flask import redirect, render_template, request, url_for
 from flask_login import current_user, login_required, login_user, logout_user
-from sqlalchemy import func
-from sqlalchemy.exc import IntegrityError
+from peewee import fn
+from playhouse.flask_utils import get_object_or_404
+from pyisemail import is_email
 
-from . import db
-from .models import Invite, URL, User, Visit
-from .utils import is_valid_email, normalize_url_input
+from .models import URL, Invite, User, Visit, database
+from .utils import normalize_url_input
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -19,15 +18,16 @@ def register():
     if request.method == 'GET':
         return render_template('register.html', invite_code=invite_code)
 
-    invite = Invite.query.get(invite_code)
+    invite: Invite = Invite.get_by_id(invite_code)
 
     if invite is None:
         return render_template('register.html', invite_code=invite_code, error='Invalid invite code')
 
-    if not is_valid_email(request.form['email']):
-        return render_template('register.html', invite_code=invite_code, error='Invalid email')
+    email_diagnosis = is_email(request.form['email'], check_dns=True, diagnose=True)
+    if email_diagnosis.code:
+        return render_template('register.html', invite_code=invite_code, error=f'Invalid email ({email_diagnosis.message})')
 
-    if User.query.filter(User.email == request.form['email']).count():
+    if User.filter(User.email == request.form['email']).count():
         return render_template('register.html', invite_code=invite_code, error='Email already taken')
 
     if not request.form['password']:
@@ -36,17 +36,12 @@ def register():
     if request.form['password'] != request.form['password2']:
         return render_template('register.html', invite_code=invite_code, error='Passwords did not match')
 
-    new_user = User(
-        email=request.form['email'],
-        password=request.form['password'],
-    )
-    db.session.add(new_user)
-    db.session.flush()
-
-    invite.used = datetime.utcnow()
-    invite.used_by = new_user.id
-
-    db.session.commit()
+    with database.atomic():
+        new_user: User = User.create(
+            email=request.form['email'],
+            password=request.form['password'],
+        )
+        invite.update(used=time.time(), used_by=new_user)
 
     login_user(new_user)
 
@@ -61,8 +56,7 @@ def login():
     if request.method == 'GET':
         return render_template('login.html')
 
-    user = User.query.filter(User.email == request.form['email']).first()
-
+    user = User.get_or_none(User.email == request.form['email'])
     if user is None or not user.check_password(request.form['password']):
         return render_template('login.html', error='Wrong email or password')
 
@@ -80,13 +74,8 @@ def logout():
 @app.route('/')
 @login_required
 def index():
-    visits = dict(db.session.query(URL.id,
-                                   func.count(Visit.id))
-                            .filter(URL.user_id == current_user.id)
-                            .outerjoin(Visit)
-                            .group_by(URL.id)
-                            .all())
-    return render_template('index.html', visits=visits)
+    current_user.urls = list(current_user.urls.select(URL, fn.COUNT(Visit.id).alias('visit_count')).left_outer_join(Visit).group_by(Visit.url_id).order_by(URL.created.desc()))
+    return render_template('index.html')
 
 
 @app.route('/add', methods=['GET', 'POST'])
@@ -97,42 +86,29 @@ def add_url():
     if not url:
         return redirect(url_for('index'))
 
-    old_url = URL.query.filter(URL.user_id == current_user.id, URL.url == url).first()
-    if old_url is not None:
-        return redirect(url_for('index', copy=old_url.id))
-
-    new_url = URL(
-        user_id=current_user.id,
-        url=url,
-    )
-
-    while 1:
+    url_obj = URL.filter(URL.user == current_user, URL.url == url).first()
+    while url_obj is None:
         try:
-            new_url.id = secrets.token_urlsafe()[:6]
-            db.session.add(new_url)
-            db.session.commit()
-        except IntegrityError as e:
+            url_obj = URL.create(user=current_user, url=url)
+        except Exception as e:
             print('ERROR!', e)
-            continue
 
-        break
-
-    return redirect(url_for('index', copy=new_url.id))
+    return redirect(url_for('index', copy=url_obj.id))
 
 
 @app.route('/edit', methods=['GET', 'POST'])
 @login_required
 def edit_url():
-    url = URL.query.filter(URL.id == request.values['id'], URL.user_id == current_user.id).first_or_404()
+    url = get_object_or_404(URL.filter(URL.id == request.values['id'], URL.user == current_user))
     if request.method == 'GET':
         return render_template('edit.html', url=url)
 
     new_url = normalize_url_input(request.form['url'])
 
     if not new_url:
-        return render_template('edit.html', url=url, error=f'Empty URL')
+        return render_template('edit.html', url=url, error='Empty URL')
 
-    taken = URL.query.filter(URL.user_id == current_user.id, URL.url == new_url).first()
+    taken = URL.filter(URL.user == current_user, URL.url == new_url).first()
     if taken:
         db.session.rollback()
         return render_template('edit.html', url=url, error=f'URL already taken by { request.host_url }{ taken.id }')
@@ -146,7 +122,7 @@ def edit_url():
 @app.route('/delete')
 @login_required
 def delete_url():
-    url = URL.query.filter(URL.id == request.args['id'], URL.user_id == current_user.id).first_or_404()
+    url = URL.filter(URL.id == request.args['id'], URL.user == current_user).first_or_404()
     if not request.args.get('sure', None):
         return render_template('delete.html', url=url)
     db.session.delete(url)
@@ -181,7 +157,7 @@ def account():
 
 @app.route('/<regex("[A-Za-z0-9_-]{6,8}"):slug>')
 def redirect_to_url(slug):
-    url = URL.query.get_or_404(slug)
+    url = get_object_or_404(URL, slug)
 
     url.add_visit()
 

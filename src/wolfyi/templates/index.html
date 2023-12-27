@@ -9,12 +9,12 @@
 {% block content %}
     {% include 'create_form.html' %}
     <h3>Existing:</h3>
-    {% for u in current_user.urls|sort(attribute='created')|reverse %}
+    {% for u in current_user.urls %}
         {% if copy == u.id %}
             <script>copy('{{ request.host }}/{{ u.id }}')</script>
         {% endif %}
         <div class="card-panel">
-            <small class="right">{{ u.created|format_date }} ({{ visits[u.id] }})</small>
+            <small class="right">{{ u.created|format_date }} ({{ u.visit_count }})</small>
             <div class="card-content">
                 <a href="{{ u.url|safe }}" target="_blank" style="overflow-wrap: break-word;">{{ u.url|safe }} <i class="tiny material-icons">launch</i></a>
             </div>

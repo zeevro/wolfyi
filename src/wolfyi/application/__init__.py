@@ -1,19 +1,14 @@
-import os
-
-import appdirs
 from flask import Flask
 from flask_login import LoginManager
-from flask_sqlalchemy import SQLAlchemy
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 from .utils import RegexConverter, format_date
 
 
-db = SQLAlchemy()
 login = LoginManager()
 
 
-def create_app(echo=False):
+def create_app() -> Flask:
     app = Flask(__name__, template_folder='../templates')
     app.url_map.strict_slashes = False
     app.url_map.converters['regex'] = RegexConverter
@@ -23,28 +18,17 @@ def create_app(echo=False):
 
     app.wsgi_app = ProxyFix(app.wsgi_app)
 
-    db_dir_path = appdirs.site_data_dir('wolfyi')
-    os.makedirs(db_dir_path, exist_ok=True)
-    db_path = os.path.join(db_dir_path, 'test.db')
-
-    if echo:
-        print(f'DB path: {db_path}')
-
-    app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}?check_same_thread=False'
-    app.config['SQLALCHEMY_ECHO'] = echo
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-    db.init_app(app)
     login.init_app(app)
     login.login_view = 'login'
 
     with app.app_context():
-        from . import admin, models, routes  # Must import admin & routes here for them to register
+        from .models import User, create_tables
+        login.user_loader(User.get_by_id)
+        create_tables()
 
-        db.create_all()
+        from .admin import admin
+        admin.init_app(app)
 
-        login.user_loader(models.User.query.get)
-
-        admin.admin.init_app(app)
+        from . import routes  # Must import routes here for them to register
 
     return app

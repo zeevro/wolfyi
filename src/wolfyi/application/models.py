@@ -1,85 +1,95 @@
-from datetime import datetime
+# import logging
+from pathlib import Path
 from secrets import token_urlsafe
+from typing import TYPE_CHECKING, Any
 
+from appdirs import site_data_dir
 from flask import request
 from flask_login import UserMixin
+from peewee import BooleanField, CharField, ForeignKeyField, Model, SqliteDatabase, TextField, TimestampField
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from . import db
+
+# logging.basicConfig()
+# logging.getLogger('peewee').setLevel(logging.DEBUG)
 
 
-class Invite(db.Model):
-    __tablename__ = 'invites'
+db_path = Path(site_data_dir('wolfyi')) / 'test.db'
 
-    id = db.Column(db.String(64), primary_key=True, default=token_urlsafe)
-    created = db.Column(db.DateTime, nullable=False, default=datetime.now)
-    used = db.Column(db.DateTime)
-    used_by = db.Column(db.Integer, db.ForeignKey('users.id'))
+database = SqliteDatabase(db_path, pragmas={'foreign_keys': 1})
+database.connection().set_trace_callback(print)
 
 
-class User(UserMixin, db.Model):
-    __tablename__ = 'users'
+def create_tables():
+    database.create_tables([User, URL, Visit, Invite])
 
-    id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(128), index=True, nullable=False)
-    password_hash = db.Column(db.String(64),  nullable=False)
-    created = db.Column(db.DateTime, nullable=False, default=datetime.now)
-    is_admin = db.Column(db.Boolean, nullable=False, default=False)
 
-    urls = db.relationship('URL', cascade='all, delete-orphan')
+def table_function(model: type[Model]):
+    return f'{model.__name__.lower()}s'
 
-    def __str__(self):
-        return f'<User #{self.id} {self.email}>'
 
-    def __init__(self, **kwargs):
-        if 'password' in kwargs:
-            self.set_password(kwargs.pop('password'))
-        super().__init__(**kwargs)
+class BaseModel(Model):
+    class Meta:
+        database = database
+        table_function = table_function
 
-    def set_password(self, password, save=False):
+    if TYPE_CHECKING:
+        id: Any
+
+
+class User(UserMixin, BaseModel):
+    email = CharField(max_length=128, unique=True)
+    password_hash = CharField(max_length=256)
+    created = TimestampField(utc=True)
+    is_admin = BooleanField(default=False)
+
+    def set_password(self, password: str, save: bool = False) -> bool | int:
         self.password_hash = generate_password_hash(password)
-        if save:
-            self.save()
+        return save and self.save()
 
-    def check_password(self, password):
-        return check_password_hash(self.password_hash, password)
+    password = property(None, set_password)  # type: ignore
+
+    def check_password(self, password) -> bool:
+        return check_password_hash(self.password_hash, password)  # type: ignore
+
+    def __str__(self) -> str:
+        return f'#{self.id} {self.email}'
 
 
-class URL(db.Model):
-    __tablename__ = 'urls'
+class URL(BaseModel):
+    class Meta:
+        indexes = [(('user', 'url'), True)]
 
-    id = db.Column(db.String(8), primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    url = db.Column(db.Text, nullable=False)
-    created = db.Column(db.DateTime, nullable=False, default=datetime.now)
+    id = CharField(primary_key=True, max_length=8, default=lambda: token_urlsafe()[:6])
+    user = ForeignKeyField(User, backref='urls', on_delete='CASCADE')
+    url = TextField()
+    created = TimestampField(utc=True)
 
-    user = db.relationship('User', back_populates='urls')
-    visits = db.relationship('Visit', cascade='all, delete-orphan')
+    def __str__(self) -> str:
+        return f'{self.id} -> {self.url}'
 
-    db.UniqueConstraint('user_id', 'url')
-
-    def __str__(self):
-        return f'<URL {self.id} => {self.url}>'
-
-    def add_visit(self):
-        new_visit = Visit(
-            url_id=self.id,
+    def add_visit(self) -> 'Visit':
+        return Visit.create(
+            url=self,
             source_addr=request.remote_addr,
             full_url=request.url,
             referrer=request.referrer,
         )
-        db.session.add(new_visit)
-        db.session.commit()
 
 
-class Visit(db.Model):
-    __tablename__ = 'visits'
+class Visit(BaseModel):
+    url = ForeignKeyField(URL, backref='visits', on_delete='CASCADE')
+    source_addr = CharField(max_length=45)
+    full_url = CharField(max_length=255)
+    referrer = CharField(max_length=255)
+    created = TimestampField(utc=True)
 
-    id = db.Column(db.Integer, primary_key=True)
-    url_id = db.Column(db.String(8), db.ForeignKey('urls.id'), nullable=False)
-    source_addr = db.Column(db.String(45), nullable=False)
-    full_url = db.Column(db.String(255))
-    referrer = db.Column(db.String(255))
-    created = db.Column(db.DateTime, nullable=False, default=datetime.now)
+    def __str__(self) -> str:
+        return f'{self.url}'
 
-    url = db.relationship('URL', back_populates='visits')
+
+class Invite(BaseModel):
+    id = CharField(primary_key=True, max_length=64, default=token_urlsafe)
+    created = TimestampField(utc=True)
+    used = TimestampField(utc=True, null=True)
+    used_by = ForeignKeyField(User)

@@ -1,2 +1,2 @@
-from .application import create_app, db
+from .application import create_app
 from .application.models import *

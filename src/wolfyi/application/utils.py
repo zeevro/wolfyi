@@ -1,6 +1,6 @@
 import re
+from urllib.parse import quote
 
-from flask import escape
 from werkzeug.routing import BaseConverter
 
 
@@ -9,7 +9,7 @@ VALID_EMAIL_RE = re.compile(r'''^(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%
 
 class RegexConverter(BaseConverter):
     def __init__(self, url_map, *items):
-        super(RegexConverter, self).__init__(url_map)
+        super().__init__(url_map)
         self.regex = items[0]
 
 
@@ -17,14 +17,14 @@ def format_date(dt):
     return dt.strftime('%Y-%m-%d %I:%M:%S')
 
 
-def is_valid_email(email):
+def is_valid_email(email) -> bool:
     return bool(VALID_EMAIL_RE.match(email))
 
 
-def normalize_url_input(url):
-    url = escape(url.strip())
+def normalize_url_input(url: str) -> str:
+    url = quote(url.strip())
     if not url:
-        return None
+        return ''
     if '://' not in url:
         url = 'http://' + url
     return url
